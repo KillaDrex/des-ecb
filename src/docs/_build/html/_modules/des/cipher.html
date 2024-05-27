@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>des.cipher &mdash; des  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            des
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">des</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">des</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">des.cipher</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for des.cipher</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Functionality of DES implementation.</span>
+
+<span class="sd">This module provides the classes and functions that facilitate the </span>
+<span class="sd">implementation of the DES algorithm based on the Electronic Code Book (ECB)</span>
+<span class="sd">encryption/decryption scheme.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<div class="viewcode-block" id="Cipher">
+<a class="viewcode-back" href="../../des.html#des.cipher.Cipher">[docs]</a>
+<span class="k">class</span> <span class="nc">Cipher</span><span class="p">:</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;DES encryption algorithm using ECB scheme.&quot;&quot;&quot;</span>
+
+	<span class="c1"># a class representing the Data Encryption Standard (DES) algorithm</span>
+
+	<span class="c1"># permutations are based on 1-based indexing</span>
+	<span class="n">ip</span> <span class="o">=</span> <span class="p">[</span>
+		<span class="mi">58</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+		<span class="mi">60</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
+		<span class="mi">62</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span>
+		<span class="mi">64</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span>
+		<span class="mi">57</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">33</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+		<span class="mi">59</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span>
+		<span class="mi">61</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span>
+		<span class="mi">63</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">7</span>
+	<span class="p">]</span>
+	
+	<span class="n">ip_inverse</span> <span class="o">=</span> <span class="p">[</span>
+		<span class="mi">40</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span>
+		<span class="mi">39</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">63</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span>
+		<span class="mi">38</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span>
+		<span class="mi">37</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span>
+		<span class="mi">36</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span>
+		<span class="mi">35</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span>
+		<span class="mi">34</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span>
+		<span class="mi">33</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="mi">25</span>
+	<span class="p">]</span>
+
+	<span class="n">e_p</span> <span class="o">=</span> <span class="p">[</span>
+		<span class="mi">32</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">5</span><span class="p">,</span>
+		<span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span>  <span class="mi">6</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>
+		<span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span>
+		<span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span>
+		<span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span>
+		<span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span>
+		<span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span>
+		<span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">1</span>
+	<span class="p">]</span>
+
+	<span class="n">tp_p</span> <span class="o">=</span> <span class="p">[</span>
+		<span class="mi">16</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span>
+		<span class="mi">29</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span>
+		<span class="mi">1</span><span class="p">,</span>  <span class="mi">15</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span>
+		<span class="mi">5</span><span class="p">,</span>  <span class="mi">18</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span>
+		<span class="mi">2</span><span class="p">,</span>   <span class="mi">8</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span>
+		<span class="mi">32</span><span class="p">,</span>  <span class="mi">27</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span>
+		<span class="mi">19</span><span class="p">,</span>  <span class="mi">13</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span>
+		<span class="mi">22</span><span class="p">,</span>  <span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">25</span>
+	<span class="p">]</span>
+
+	<span class="n">key_p_1</span> <span class="o">=</span> <span class="p">[</span>
+		<span class="mi">57</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">33</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span>
+		<span class="mi">1</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span>
+		<span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span>
+		<span class="mi">19</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span>
+		<span class="mi">63</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span>
+		<span class="mi">7</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span>
+		<span class="mi">14</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span>
+		<span class="mi">21</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">4</span>
+	<span class="p">]</span>
+
+	<span class="n">key_p_2</span> <span class="o">=</span> <span class="p">[</span>
+		<span class="mi">14</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span>
+		<span class="mi">3</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span>
+		<span class="mi">23</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span>
+		<span class="mi">16</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+		<span class="mi">41</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span>
+		<span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">33</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span>
+		<span class="mi">44</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span>
+		<span class="mi">46</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">32</span>
+	<span class="p">]</span>
+
+	<span class="c1"># substitution boxes</span>
+	<span class="n">s_1</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">7</span><span class="p">},</span>
+		<span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
+		<span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+		<span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">13</span><span class="p">},</span>
+	<span class="p">}</span>
+
+	<span class="n">s_2</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+		<span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+		<span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">15</span><span class="p">},</span>
+		<span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">9</span><span class="p">},</span>
+	<span class="p">}</span>
+
+	<span class="n">s_3</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
+		<span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+		<span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">7</span><span class="p">},</span>
+		<span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
+	<span class="p">}</span>
+
+	<span class="n">s_4</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">15</span><span class="p">},</span>
+		<span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">9</span><span class="p">},</span>
+		<span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+		<span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">14</span><span class="p">},</span>
+	<span class="p">}</span>
+
+	<span class="n">s_5</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">9</span><span class="p">},</span>
+		<span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+		<span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">14</span><span class="p">},</span>
+		<span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+	<span class="p">}</span>
+
+	<span class="n">s_6</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">11</span><span class="p">},</span>
+		<span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
+		<span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+		<span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">13</span><span class="p">},</span>
+	<span class="p">}</span>
+
+	<span class="n">s_7</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+		<span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+		<span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+		<span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
+	<span class="p">}</span>
+
+	<span class="n">s_8</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">7</span><span class="p">},</span>
+		<span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+		<span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
+		<span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="mi">11</span><span class="p">},</span>
+	<span class="p">}</span>
+
+<div class="viewcode-block" id="Cipher.apply_permutation">
+<a class="viewcode-back" href="../../des.html#des.cipher.Cipher.apply_permutation">[docs]</a>
+	<span class="nd">@classmethod</span>
+	<span class="k">def</span> <span class="nf">apply_permutation</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">binary_str</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Apply permutation on binary string and return result string.</span>
+
+<span class="sd">		...</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		binary_str : str</span>
+<span class="sd">			Binary String.</span>
+<span class="sd">		p : list</span>
+<span class="sd">			Permutation list of integers.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		str</span>
+<span class="sd">			Permuted binary string.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		TypeError</span>
+<span class="sd">			If the permutation list and/or its elements are invalid types.</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			If the binary string is of invalid type or format.</span>
+<span class="sd">			</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c1"># validate binary string</span>
+		<span class="n">binary_str</span> <span class="o">=</span> <span class="n">validate_binary_str</span><span class="p">(</span><span class="n">binary_str</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">binary_str</span> <span class="o">==</span> <span class="s1">&#39;Invalid&#39;</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Not a valid binary String&#39;</span><span class="p">)</span>
+
+		<span class="c1"># validate permutation list</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Permutation not a List&#39;</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">p</span><span class="p">:</span>
+			<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Permutation element is not an Integer&#39;</span><span class="p">)</span>
+
+		<span class="n">result_binary_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+		<span class="c1"># apply permutation</span>
+		<span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">p</span><span class="p">:</span>
+			<span class="c1"># convert index to zero-based indexing</span>
+			<span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">-</span> <span class="mi">1</span>
+
+			<span class="n">result_binary_str</span> <span class="o">=</span> <span class="n">result_binary_str</span> <span class="o">+</span> <span class="n">binary_str</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+		<span class="c1"># return resulting binary string</span>
+		<span class="k">return</span> <span class="n">result_binary_str</span></div>
+
+
+<div class="viewcode-block" id="Cipher.encrypt_msg">
+<a class="viewcode-back" href="../../des.html#des.cipher.Cipher.encrypt_msg">[docs]</a>
+	<span class="nd">@classmethod</span>
+	<span class="k">def</span> <span class="nf">encrypt_msg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">hex_key</span><span class="p">):</span>
+
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Encrypt string message and return encrypted string.</span>
+
+<span class="sd">		...</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		msg : str</span>
+<span class="sd">			String message.</span>
+<span class="sd">		hex_key : str</span>
+<span class="sd">			Hexadecimal string.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		str</span>
+<span class="sd">			Encrypted message in hexadecimal format.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		TypeError</span>
+<span class="sd">			If the string message is not a str.</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			If the message is empty or key is not hexadecimal or not 16 digits.</span>
+<span class="sd">			</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c1"># encrypt a string message (only supports 127 ascii character set)</span>
+		<span class="c1"># returns ciphertext(in hexadecimal)</span>
+		<span class="c1"># uses a 64-bit key in hexadecimal string</span>
+		<span class="c1"># hexadecimal string must be 16-digits, and of proper format</span>
+		<span class="c1"># hex string can have the prefix, </span>
+		<span class="c1"># casing is irrelevant, leading zeroes allowed</span>
+		<span class="c1"># can raise TypeError|ValueError</span>
+
+		<span class="c1"># validate msg to be a string</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Message not a string&#39;</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Message contains no characters&#39;</span><span class="p">)</span>
+
+		<span class="c1"># create key, validation is also done here</span>
+		<span class="n">key</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="n">hex_key</span><span class="p">)</span>
+
+		<span class="c1"># convert msg to 16-digit hexadecimal blocks</span>
+		<span class="n">hex_blocks_of_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_convert_string_to_hexadecimal_in_64_bits_blocks</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+		<span class="c1"># encrypt each block linearly</span>
+		<span class="n">ciphertext</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">hex_blocks_of_data</span><span class="p">:</span>
+			<span class="n">ciphertext</span> <span class="o">+=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_encrypt_hexadecimal</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+		<span class="c1"># return ciphertext</span>
+		<span class="k">return</span> <span class="n">ciphertext</span></div>
+
+
+<div class="viewcode-block" id="Cipher.decrypt_msg">
+<a class="viewcode-back" href="../../des.html#des.cipher.Cipher.decrypt_msg">[docs]</a>
+	<span class="nd">@classmethod</span>
+	<span class="k">def</span> <span class="nf">decrypt_msg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">encrypted_data</span><span class="p">,</span> <span class="n">hex_key</span><span class="p">):</span>
+
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Decrypt hexadecimal string and return string message.</span>
+
+<span class="sd">		...</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		encrypted_data : str</span>
+<span class="sd">			Encrypted string in hexadecimal format.</span>
+<span class="sd">		hex_key : str</span>
+<span class="sd">			Hexadecimal string.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		str</span>
+<span class="sd">			Original string message.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			If the encrypted string length is not a multiple of 16 or key is not hexadecimal or not 16 digits.</span>
+<span class="sd">			</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c1"># decrypts encrypted hexadecimal data </span>
+		<span class="c1"># returns string msg</span>
+		<span class="c1"># uses a 64-bit key in hexadecimal string</span>
+		<span class="c1"># encrypted hex string must be a multiple of 16 digits and of proper format</span>
+		<span class="c1"># hex key string must be 16-digits, and of proper format</span>
+		<span class="c1"># hex strings can have the prefix, </span>
+		<span class="c1"># casing is irrelevant, leading zeroes allowed</span>
+		<span class="c1"># can raise ValueError</span>
+
+		<span class="c1"># validate encrypted data</span>
+		<span class="n">encrypted_data</span> <span class="o">=</span> <span class="n">validate_hex_str</span><span class="p">(</span><span class="n">encrypted_data</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">encrypted_data</span> <span class="o">==</span> <span class="s1">&#39;Invalid&#39;</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Encrypted data must a hexadecimal String of proper format&#39;</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">encrypted_data</span><span class="p">)</span> <span class="o">%</span> <span class="mi">16</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Encrypted data is incomplete&#39;</span><span class="p">)</span>
+
+		<span class="c1"># create key, validation is also done here</span>
+		<span class="n">key</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="n">hex_key</span><span class="p">)</span>
+
+		<span class="c1"># separate encrypted data into 16-digit blocks</span>
+		<span class="n">blocks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+		<span class="n">block</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="k">for</span> <span class="n">digit</span> <span class="ow">in</span> <span class="n">encrypted_data</span><span class="p">:</span>
+			<span class="c1"># append digit to block</span>
+			<span class="n">block</span> <span class="o">+=</span> <span class="n">digit</span>
+
+			<span class="c1"># if block is filled, move to next</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">block</span><span class="p">)</span> <span class="o">==</span> <span class="mi">16</span><span class="p">:</span>
+				<span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span> <span class="c1"># append block</span>
+				<span class="n">block</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="c1"># revert block</span>
+
+		<span class="c1"># decrypt each block linearly</span>
+		<span class="n">decrypted_hex</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">:</span>
+			<span class="n">decrypted_hex</span> <span class="o">+=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_decrypt_hexadecimal</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+		<span class="c1"># remove NUL characters (block padding) at the end of string</span>
+		<span class="n">decrypted_hex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;(00)+$&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">decrypted_hex</span><span class="p">)</span>
+
+		<span class="c1">#return msg</span>
+		<span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_encode_hex_to_str</span><span class="p">(</span><span class="n">decrypted_hex</span><span class="p">)</span></div>
+
+
+	<span class="nd">@classmethod</span>
+	<span class="k">def</span> <span class="nf">_encrypt_hexadecimal</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">hex_data</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+		<span class="c1"># encrypts a 16-digit hex string, returns 16-digit encrypted hex string</span>
+		<span class="c1"># casing is irrelevant</span>
+		<span class="c1"># 0x/0X is recognized</span>
+		<span class="c1"># leading zeroes from string are allowed</span>
+
+		<span class="c1"># validate hex data &amp; convert to 64 bits of binary</span>
+		<span class="n">bin_data</span> <span class="o">=</span> <span class="n">hex_to_binary_str_64_bits</span><span class="p">(</span><span class="n">hex_data</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">bin_data</span> <span class="o">==</span> <span class="s1">&#39;Invalid&#39;</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_data</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">64</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Data must be a valid hexadecimal and 64 bits&#39;</span><span class="p">)</span>
+
+		<span class="c1"># validate key</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Key</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Key is not of type Key&#39;</span><span class="p">)</span>
+
+		<span class="c1"># apply initial permutation</span>
+		<span class="n">bin_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">apply_permutation</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ip</span><span class="p">)</span>
+
+		<span class="c1"># go through 16 rounds of encryption</span>
+
+		<span class="c1"># split initial data</span>
+		<span class="n">l0</span> <span class="o">=</span> <span class="n">bin_data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">32</span><span class="p">]</span>
+		<span class="n">r0</span> <span class="o">=</span> <span class="n">bin_data</span><span class="p">[</span><span class="mi">32</span><span class="p">:]</span>
+
+		<span class="n">l_minus_1</span> <span class="o">=</span> <span class="n">l0</span>
+		<span class="n">r_minus_1</span> <span class="o">=</span> <span class="n">r0</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">):</span>
+			<span class="c1"># get current round&#39;s data</span>
+			<span class="n">li</span> <span class="o">=</span> <span class="n">r_minus_1</span>
+			<span class="n">ri</span> <span class="o">=</span> <span class="n">xor</span><span class="p">(</span><span class="n">l_minus_1</span><span class="p">,</span> 
+				<span class="bp">cls</span><span class="o">.</span><span class="n">_apply_mangler_function</span><span class="p">(</span><span class="n">r_minus_1</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">round_keys</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;k</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">])</span> 
+			<span class="p">)</span>
+
+			<span class="c1"># update previous l and r for next round</span>
+			<span class="n">l_minus_1</span> <span class="o">=</span> <span class="n">li</span>
+			<span class="n">r_minus_1</span> <span class="o">=</span> <span class="n">ri</span>
+
+		<span class="c1"># swap and apply inverse initial permutation on data</span>
+		<span class="n">encrypted_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">apply_permutation</span><span class="p">(</span><span class="n">ri</span><span class="o">+</span><span class="n">li</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ip_inverse</span><span class="p">)</span>
+
+		<span class="c1"># return encrypted data in hex string</span>
+		<span class="k">return</span> <span class="n">binary_to_hex_str_64_bits</span><span class="p">(</span><span class="n">encrypted_data</span><span class="p">)</span>
+
+	<span class="nd">@classmethod</span>
+	<span class="k">def</span> <span class="nf">_decrypt_hexadecimal</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">encrypted_data</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+		<span class="c1"># decrypts a 16-digit encrypted hex string, returns 16-digit hex string</span>
+		<span class="c1"># casing is irrelevant</span>
+		<span class="c1"># 0x/0X is recognized</span>
+		<span class="c1"># leading zeroes from string are allowed</span>
+
+		<span class="c1"># validate encrypted data &amp; convert to 64 bits of binary</span>
+		<span class="n">bin_data</span> <span class="o">=</span> <span class="n">hex_to_binary_str_64_bits</span><span class="p">(</span><span class="n">encrypted_data</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">bin_data</span> <span class="o">==</span> <span class="s1">&#39;Invalid&#39;</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_data</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">64</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Encrypted data must be a valid hexadecimal and 64 bits&#39;</span><span class="p">)</span>
+
+		<span class="c1"># validate key</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Key</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Key is not of type Key&#39;</span><span class="p">)</span>
+
+		<span class="c1"># apply initial permutation</span>
+		<span class="n">bin_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">apply_permutation</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ip</span><span class="p">)</span>
+
+		<span class="c1"># go through 16 rounds of decryption</span>
+
+		<span class="c1"># split initial data</span>
+		<span class="n">l0</span> <span class="o">=</span> <span class="n">bin_data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">32</span><span class="p">]</span>
+		<span class="n">r0</span> <span class="o">=</span> <span class="n">bin_data</span><span class="p">[</span><span class="mi">32</span><span class="p">:]</span>
+
+		<span class="n">l_minus_1</span> <span class="o">=</span> <span class="n">l0</span>
+		<span class="n">r_minus_1</span> <span class="o">=</span> <span class="n">r0</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span> <span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+			<span class="c1"># get current round&#39;s data</span>
+			<span class="n">li</span> <span class="o">=</span> <span class="n">r_minus_1</span>
+			<span class="n">ri</span> <span class="o">=</span> <span class="n">xor</span><span class="p">(</span><span class="n">l_minus_1</span><span class="p">,</span> 
+				<span class="bp">cls</span><span class="o">.</span><span class="n">_apply_mangler_function</span><span class="p">(</span><span class="n">r_minus_1</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">round_keys</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;k</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">])</span> 
+			<span class="p">)</span>
+
+			<span class="c1"># update previous l and r for next round</span>
+			<span class="n">l_minus_1</span> <span class="o">=</span> <span class="n">li</span>
+			<span class="n">r_minus_1</span> <span class="o">=</span> <span class="n">ri</span>
+
+		<span class="c1"># swap and apply inverse initial permutation on data</span>
+		<span class="n">decrypted_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">apply_permutation</span><span class="p">(</span><span class="n">ri</span><span class="o">+</span><span class="n">li</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ip_inverse</span><span class="p">)</span>
+
+		<span class="c1"># return decrypted data in hex string</span>
+		<span class="k">return</span> <span class="n">binary_to_hex_str_64_bits</span><span class="p">(</span><span class="n">decrypted_data</span><span class="p">)</span>
+
+	<span class="nd">@classmethod</span>
+	<span class="k">def</span> <span class="nf">_apply_mangler_function</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+		<span class="c1"># applies the f function on Rn-1,K1</span>
+
+		<span class="c1"># apply expansion permutation on Rn-1</span>
+		<span class="n">r</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">apply_permutation</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">e_p</span><span class="p">)</span>
+
+		<span class="c1"># apply K1 + E(Rn-1)</span>
+		<span class="n">r</span> <span class="o">=</span> <span class="n">xor</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+
+		<span class="c1"># apply substitution </span>
+		<span class="n">r</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_apply_substitution</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+		<span class="c1"># apply transposition</span>
+		<span class="n">r</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">apply_permutation</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">tp_p</span><span class="p">)</span>
+
+		<span class="c1"># return f(Rn-1, K1)</span>
+		<span class="k">return</span> <span class="n">r</span>
+
+	<span class="nd">@classmethod</span>
+	<span class="k">def</span> <span class="nf">_apply_substitution</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">binary_str</span><span class="p">):</span>
+		<span class="c1"># applies the 8 substitutions on Kn+E(Rn-1 )</span>
+
+		<span class="n">s</span> <span class="o">=</span> <span class="mi">1</span>
+		<span class="n">b</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">binary_str</span><span class="p">)</span> <span class="p">):</span>
+			<span class="c1"># add current bit to b</span>
+			<span class="n">b</span> <span class="o">+=</span> <span class="n">binary_str</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+			<span class="c1"># acquired Bn</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+				<span class="c1"># process Bn</span>
+				<span class="n">row</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+				<span class="n">column</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">],</span> <span class="n">base</span> <span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+				<span class="c1"># use appropriate substitution box</span>
+				<span class="k">match</span> <span class="n">s</span><span class="p">:</span>
+					<span class="k">case</span> <span class="mi">1</span><span class="p">:</span>
+						<span class="n">subs_value</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">s_1</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">column</span><span class="p">]</span>
+					<span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
+						<span class="n">subs_value</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">s_2</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">column</span><span class="p">]</span>
+					<span class="k">case</span> <span class="mi">3</span><span class="p">:</span>
+						<span class="n">subs_value</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">s_3</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">column</span><span class="p">]</span>
+					<span class="k">case</span> <span class="mi">4</span><span class="p">:</span>
+						<span class="n">subs_value</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">s_4</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">column</span><span class="p">]</span>
+					<span class="k">case</span> <span class="mi">5</span><span class="p">:</span>
+						<span class="n">subs_value</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">s_5</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">column</span><span class="p">]</span>
+					<span class="k">case</span> <span class="mi">6</span><span class="p">:</span>
+						<span class="n">subs_value</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">s_6</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">column</span><span class="p">]</span>
+					<span class="k">case</span> <span class="mi">7</span><span class="p">:</span>
+						<span class="n">subs_value</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">s_7</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">column</span><span class="p">]</span>
+					<span class="k">case</span> <span class="mi">8</span><span class="p">:</span>
+						<span class="n">subs_value</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">s_8</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">column</span><span class="p">]</span>
+
+				<span class="c1"># convert decimal subs to binary string</span>
+				<span class="n">subs_value_bin</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="n">subs_value</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span>
+
+				<span class="c1"># add leading zeroes to substitution value if needed</span>
+				<span class="n">len_zeroes</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">subs_value_bin</span><span class="p">)</span>
+				<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_zeroes</span><span class="p">):</span>
+					<span class="n">subs_value_bin</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span> <span class="o">+</span> <span class="n">subs_value_bin</span>
+
+				<span class="c1"># add Si(Bi) to result</span>
+				<span class="n">result</span> <span class="o">+=</span> <span class="n">subs_value_bin</span>
+
+				<span class="c1"># revert Bn</span>
+				<span class="n">b</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+				<span class="c1"># increment S</span>
+				<span class="n">s</span> <span class="o">+=</span> <span class="mi">1</span>
+
+		<span class="c1"># return result</span>
+		<span class="k">return</span> <span class="n">result</span>
+
+	<span class="nd">@classmethod</span>
+	<span class="k">def</span> <span class="nf">_convert_string_to_hexadecimal_in_64_bits_blocks</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string_val</span><span class="p">):</span>
+		<span class="c1"># converts a string into hexadecimals and into 16-digits strings</span>
+
+		<span class="n">blocks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+		<span class="c1"># go through each character in string</span>
+		<span class="n">block</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">string_val</span><span class="p">)</span> <span class="p">):</span>
+			<span class="c1"># get letter</span>
+			<span class="n">lttr</span> <span class="o">=</span> <span class="n">string_val</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+			<span class="c1"># get letter decimal value</span>
+			<span class="n">lttr_value</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">lttr</span><span class="p">)</span>
+
+			<span class="c1"># if value &gt; 128 (a character outside of original ascii)</span>
+			<span class="k">if</span> <span class="n">lttr_value</span> <span class="o">&gt;</span> <span class="mi">128</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only Original 127 bit ASCII characters are allowed&#39;</span><span class="p">)</span>
+
+			<span class="c1"># convert lttr to 2 hexadecimal characters, emphasize lower case</span>
+			<span class="n">h</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="n">lttr_value</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;0x&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+			<span class="c1"># add leading zero if necessary, to maintain the standard</span>
+			<span class="c1"># of a byte per character (leading to supporting only the original ascii set)</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+				<span class="n">h</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span> <span class="o">+</span> <span class="n">h</span>
+
+			<span class="c1"># append hexadecimal characters </span>
+			<span class="n">block</span> <span class="o">+=</span> <span class="n">h</span>
+
+			<span class="c1"># check if block is packed, or last letter</span>
+			<span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">block</span><span class="p">)</span> <span class="o">==</span> <span class="mi">16</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">string_val</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+				<span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
+				<span class="c1"># revert block</span>
+				<span class="n">block</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+		<span class="c1"># check last block, pad it with zeroes if not 16-digits</span>
+		<span class="n">len_last_block</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+		<span class="k">if</span> <span class="n">len_last_block</span> <span class="o">!=</span> <span class="mi">16</span><span class="p">:</span>
+			<span class="n">len_zeroes</span> <span class="o">=</span> <span class="mi">16</span> <span class="o">-</span> <span class="n">len_last_block</span>
+
+			<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_zeroes</span><span class="p">):</span>
+				<span class="n">blocks</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="s1">&#39;0&#39;</span>
+
+		<span class="c1"># return blocks</span>
+		<span class="k">return</span> <span class="n">blocks</span>
+
+	<span class="nd">@classmethod</span>
+	<span class="k">def</span> <span class="nf">_encode_hex_to_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">hex_str</span><span class="p">):</span>
+		<span class="c1"># convert hex to letter str</span>
+		<span class="c1"># returns str</span>
+		<span class="c1"># hex string must be a multiple of 2 digits and of proper format</span>
+		<span class="c1"># hex strings can have the prefix, </span>
+		<span class="c1"># casing is irrelevant</span>
+
+		<span class="c1"># validate hex string</span>
+		<span class="n">hex_str</span> <span class="o">=</span> <span class="n">validate_hex_str</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">hex_str</span> <span class="o">==</span> <span class="s1">&#39;Invalid&#39;</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must be a hexadecimal String of proper format&#39;</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Some character data is incomplete&#39;</span><span class="p">)</span>
+
+		<span class="c1"># create a bytes object</span>
+		<span class="n">b</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span>
+
+		<span class="c1"># go through each char byte, convert to letter</span>
+		<span class="n">str_value</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="k">for</span> <span class="n">byte</span> <span class="ow">in</span> <span class="n">b</span><span class="p">:</span>
+			<span class="n">str_value</span> <span class="o">+=</span> <span class="nb">chr</span><span class="p">(</span><span class="n">byte</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">str_value</span></div>
+
+
+<div class="viewcode-block" id="Key">
+<a class="viewcode-back" href="../../des.html#des.cipher.Key">[docs]</a>
+<span class="k">class</span> <span class="nc">Key</span><span class="p">:</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;64-bit Key used in encryption/decryption.</span>
+
+<span class="sd">	...</span>
+
+<span class="sd">	Attributes</span>
+<span class="sd">	----------</span>
+<span class="sd">	binary_string</span>
+<span class="sd">	keys_56_bit</span>
+<span class="sd">	round_keys</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c1"># a 64-bit read-only key</span>
+
+	<span class="c1"># constructor accepts a 16-digit hex string</span>
+	<span class="c1"># and converts it into 64 bits</span>
+	<span class="c1"># casing is irrelevant</span>
+	<span class="c1"># 0x/0X is recognized</span>
+	<span class="c1"># leading zeroes from string are allowed</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hex_str</span><span class="p">):</span>
+		<span class="c1"># validate hex string &amp; convert to 64 bits of binary </span>
+		<span class="n">bin_str</span> <span class="o">=</span> <span class="n">hex_to_binary_str_64_bits</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span>
+
+		<span class="c1"># assign binary string of key</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_bin_str</span> <span class="o">=</span> <span class="n">bin_str</span>		
+
+		<span class="c1"># generate 56-bit keys</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_56_bit_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_56_bit_keys</span><span class="p">()</span>
+
+		<span class="c1"># generate 48-bit round keys</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_generate_round_keys</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_48_bit_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_round_keys</span><span class="p">()</span>
+
+	<span class="c1"># compares key 64-bit string to other binary string</span>
+	<span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Invalid operand type&#39;</span><span class="p">)</span>
+
+		<span class="c1"># compare binary string to other string</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">binary_string</span> <span class="o">==</span> <span class="n">other</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">False</span>
+
+	<span class="c1"># generate 16 56-bit keys </span>
+	<span class="c1"># bit left shift circular is also done here</span>
+	<span class="k">def</span> <span class="nf">_generate_56_bit_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="c1"># permute 64 bit key</span>
+		<span class="n">binary_string_56_bit</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="n">apply_permutation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary_string</span><span class="p">,</span> <span class="n">Cipher</span><span class="o">.</span><span class="n">key_p_1</span><span class="p">)</span>
+
+		<span class="c1"># divide binary in half</span>
+		<span class="n">c0</span> <span class="o">=</span> <span class="n">binary_string_56_bit</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">28</span><span class="p">]</span>
+		<span class="n">d0</span> <span class="o">=</span> <span class="n">binary_string_56_bit</span><span class="p">[</span><span class="mi">28</span><span class="p">:]</span>
+	
+		<span class="c1"># dictionary to hold 56-bit keys</span>
+		<span class="n">keys</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+		<span class="c1"># round 0,1,8,15(1,2,9,16)=1 rest=2</span>
+		<span class="n">c_minus_1</span> <span class="o">=</span> <span class="n">c0</span>
+		<span class="n">d_minus_1</span> <span class="o">=</span> <span class="n">d0</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">):</span>
+			<span class="k">match</span> <span class="n">i</span><span class="p">:</span>
+				<span class="k">case</span> <span class="mi">0</span> <span class="o">|</span> <span class="mi">1</span> <span class="o">|</span> <span class="mi">8</span> <span class="o">|</span> <span class="mi">15</span><span class="p">:</span>
+					<span class="n">ci</span> <span class="o">=</span> <span class="n">c_minus_1</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">c_minus_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+					<span class="n">di</span> <span class="o">=</span> <span class="n">d_minus_1</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">d_minus_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+				<span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+					<span class="n">ci</span> <span class="o">=</span> <span class="n">c_minus_1</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">+</span> <span class="n">c_minus_1</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+					<span class="n">di</span> <span class="o">=</span> <span class="n">d_minus_1</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">+</span> <span class="n">d_minus_1</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+			<span class="c1"># save key</span>
+			<span class="n">keys</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;c</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ci</span>
+			<span class="n">keys</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;d</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">di</span>
+
+			<span class="c1"># change previous to current</span>
+			<span class="n">c_minus_1</span> <span class="o">=</span> <span class="n">ci</span>
+			<span class="n">d_minus_1</span> <span class="o">=</span> <span class="n">di</span>
+
+		<span class="c1"># return dictionary</span>
+		<span class="k">return</span> <span class="n">keys</span>
+
+	<span class="c1"># generate 16 48-bit round keys</span>
+	<span class="k">def</span> <span class="nf">_generate_round_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="c1"># dictionary</span>
+		<span class="n">round_keys</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+		<span class="c1"># go through each of the 56 bit keys</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">):</span>
+			<span class="c1"># combine halves to form key</span>
+			<span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_56_bit</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;c</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_56_bit</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;d</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+			
+			<span class="c1"># generate round key</span>
+			<span class="n">round_key</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="n">apply_permutation</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">Cipher</span><span class="o">.</span><span class="n">key_p_2</span><span class="p">)</span>
+
+			<span class="c1"># add key to dictionary</span>
+			<span class="n">round_keys</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;k</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">round_key</span>
+
+		<span class="c1"># return dictionary </span>
+		<span class="k">return</span> <span class="n">round_keys</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">binary_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Binary representation of key.&quot;&quot;&quot;</span>
+
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bin_str</span>
+
+	<span class="nd">@property</span> 
+	<span class="k">def</span> <span class="nf">keys_56_bit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Dictionary of permuted left-shifted 56-bit keys.&quot;&quot;&quot;</span>
+
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_56_bit_keys</span>
+
+	<span class="nd">@property</span> 
+	<span class="k">def</span> <span class="nf">round_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Dictionary of round keys.&quot;&quot;&quot;</span>
+
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_48_bit_keys</span></div>
+
+
+<div class="viewcode-block" id="xor">
+<a class="viewcode-back" href="../../des.html#des.cipher.xor">[docs]</a>
+<span class="k">def</span> <span class="nf">xor</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Apply XOR operation on two binary strings.</span>
+
+<span class="sd">	...</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	first : str</span>
+<span class="sd">		First binary string.</span>
+<span class="sd">	second : str</span>
+<span class="sd">		Second binary string.</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	str</span>
+<span class="sd">		Result binary string.</span>
+
+<span class="sd">	Raises</span>
+<span class="sd">	------</span>
+<span class="sd">	ValueError</span>
+<span class="sd">		If the binary strings are invalid in type or format.</span>
+<span class="sd">		</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c1"># performs an XOR operation on two binary strings</span>
+	
+	<span class="c1"># validate binary strings</span>
+	<span class="n">first</span> <span class="o">=</span> <span class="n">validate_binary_str</span><span class="p">(</span><span class="n">first</span><span class="p">)</span>
+	<span class="n">second</span> <span class="o">=</span> <span class="n">validate_binary_str</span><span class="p">(</span><span class="n">second</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">first</span> <span class="o">==</span> <span class="s1">&#39;Invalid&#39;</span> <span class="ow">or</span> <span class="n">second</span> <span class="o">==</span> <span class="s1">&#39;Invalid&#39;</span><span class="p">:</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid binary String&quot;</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">first</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">second</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Binary Strings different in length&#39;</span><span class="p">)</span>
+
+	<span class="c1"># go through each bit one by one</span>
+	<span class="n">result_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">first</span><span class="p">)</span> <span class="p">):</span>
+		<span class="n">first_bit</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+		<span class="n">second_bit</span> <span class="o">=</span> <span class="n">second</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+		<span class="c1"># if bits are the same, set new bit to 0, else 1</span>
+		<span class="k">if</span> <span class="n">first_bit</span> <span class="o">==</span> <span class="n">second_bit</span><span class="p">:</span>
+			<span class="n">new_bit</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">new_bit</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+
+		<span class="c1"># append new bit to result</span>
+		<span class="n">result_str</span> <span class="o">+=</span> <span class="n">new_bit</span>
+
+	<span class="c1"># return result</span>
+	<span class="k">return</span> <span class="n">result_str</span></div>
+
+
+<div class="viewcode-block" id="binary_to_hex_str_64_bits">
+<a class="viewcode-back" href="../../des.html#des.cipher.binary_to_hex_str_64_bits">[docs]</a>
+<span class="k">def</span> <span class="nf">binary_to_hex_str_64_bits</span><span class="p">(</span><span class="n">binary_str</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Convert binary string to hexadecimal.</span>
+
+<span class="sd">	...</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	binary_str : str</span>
+<span class="sd">		Binary string.</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	str</span>
+<span class="sd">		Hexadecimal string.</span>
+
+<span class="sd">	Raises</span>
+<span class="sd">	------</span>
+<span class="sd">	ValueError</span>
+<span class="sd">		If the binary string is invalid in format/type or not 64 characters.</span>
+<span class="sd">		</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c1"># convert binary string to hex str of 64 bits</span>
+
+	<span class="c1"># validate binary string</span>
+	<span class="n">binary_str</span> <span class="o">=</span> <span class="n">validate_binary_str</span><span class="p">(</span><span class="n">binary_str</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">binary_str</span> <span class="o">==</span> <span class="s1">&#39;Invalid&#39;</span><span class="p">:</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Not a valid binary String&#39;</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">binary_str</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">64</span><span class="p">:</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Binary must be 64 bits&#39;</span><span class="p">)</span>
+
+	<span class="n">hex_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="n">b</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">binary_str</span><span class="p">)</span> <span class="p">):</span>
+		<span class="c1"># append bit</span>
+		<span class="n">b</span> <span class="o">+=</span> <span class="n">binary_str</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+			<span class="c1"># get hex digit from 4 bits</span>
+			<span class="n">h</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;0x&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+			<span class="c1"># append digit</span>
+			<span class="n">hex_str</span> <span class="o">+=</span> <span class="n">h</span>
+
+			<span class="c1"># revert b</span>
+			<span class="n">b</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+	<span class="c1"># return hex string, emphasize in lower-case</span>
+	<span class="k">return</span> <span class="n">hex_str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="hex_to_binary_str_64_bits">
+<a class="viewcode-back" href="../../des.html#des.cipher.hex_to_binary_str_64_bits">[docs]</a>
+<span class="k">def</span> <span class="nf">hex_to_binary_str_64_bits</span><span class="p">(</span><span class="n">hex_str</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Convert hexadecimal string to binary.</span>
+
+<span class="sd">	...</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	hex_str : str</span>
+<span class="sd">		Hexadecimal string.</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	str</span>
+<span class="sd">		Binary string.</span>
+
+<span class="sd">	Raises</span>
+<span class="sd">	------</span>
+<span class="sd">	ValueError</span>
+<span class="sd">		If the hexadecimal string is invalid in format/type or not 16 characters.</span>
+<span class="sd">		</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c1"># convert hex string to binary str of 64 bits</span>
+
+	<span class="c1"># validate hex string</span>
+	<span class="n">hex_str</span> <span class="o">=</span> <span class="n">validate_hex_str</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">hex_str</span> <span class="o">==</span> <span class="s1">&#39;Invalid&#39;</span><span class="p">:</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Not a valid hexadecimal String&#39;</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">16</span><span class="p">:</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Hexadecimal must be 64 bits&#39;</span><span class="p">)</span>
+
+	<span class="n">bin_str</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hex_str</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="p">)[</span><span class="mi">2</span><span class="p">:]</span>
+
+	<span class="c1"># add leading zeroes if necessary</span>
+	<span class="n">len_zeroes</span> <span class="o">=</span> <span class="mi">64</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_str</span><span class="p">)</span>
+
+	<span class="c1"># prefix binary string with leading zeroes if necessary</span>
+	<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_zeroes</span><span class="p">):</span>
+		<span class="n">bin_str</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span> <span class="o">+</span> <span class="n">bin_str</span>
+
+	<span class="c1"># return binary string</span>
+	<span class="k">return</span> <span class="n">bin_str</span></div>
+
+
+<div class="viewcode-block" id="validate_binary_str">
+<a class="viewcode-back" href="../../des.html#des.cipher.validate_binary_str">[docs]</a>
+<span class="k">def</span> <span class="nf">validate_binary_str</span><span class="p">(</span><span class="n">binary_str</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Validate binary string and return without prefix.</span>
+
+<span class="sd">	...</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	binary_str : str</span>
+<span class="sd">		Binary string.</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	str</span>
+<span class="sd">		Binary string.</span>
+<span class="sd">		</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c1"># validate binary string</span>
+	<span class="c1"># returns binary string without prefix if valid</span>
+
+	<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">binary_str</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+		<span class="k">return</span> <span class="s1">&#39;Invalid&#39;</span>
+	<span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(?:0b)?([01]+)&#39;</span>
+	<span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">binary_str</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+		<span class="k">return</span> <span class="s1">&#39;Invalid&#39;</span>
+
+	<span class="c1"># return binary string without prefix</span>
+	<span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validate_hex_str">
+<a class="viewcode-back" href="../../des.html#des.cipher.validate_hex_str">[docs]</a>
+<span class="k">def</span> <span class="nf">validate_hex_str</span><span class="p">(</span><span class="n">hex_str</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Validate hexadecimal string and return without prefix.</span>
+
+<span class="sd">	...</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	hex_str : str</span>
+<span class="sd">		Hexadecimal string.</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	str</span>
+<span class="sd">		Hexadecimal string.</span>
+<span class="sd">		</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c1"># validate hex string</span>
+	<span class="c1"># returns hex string without prefix if valid</span>
+
+	<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">hex_str</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+		<span class="k">return</span> <span class="s1">&#39;Invalid&#39;</span>
+	<span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(?:0x)?([a-f0-9]+)&#39;</span>
+	<span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">hex_str</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+		<span class="k">return</span> <span class="s1">&#39;Invalid&#39;</span>
+
+	<span class="c1"># return hex string with no prefix</span>
+	<span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="group_characters">
+<a class="viewcode-back" href="../../des.html#des.cipher.group_characters">[docs]</a>
+<span class="k">def</span> <span class="nf">group_characters</span><span class="p">(</span><span class="n">string_val</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Separate characters in string with a space.</span>
+
+<span class="sd">	...</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	string_val : str</span>
+<span class="sd">		Given string.</span>
+<span class="sd">	n : int</span>
+<span class="sd">		Number of characters in a group.</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	str</span>
+<span class="sd">		Resulting string.</span>
+
+<span class="sd">	Raises</span>
+<span class="sd">	------</span>
+<span class="sd">	TypeError</span>
+<span class="sd">		If the string is not of type str, or n not of type int.</span>
+<span class="sd">	ValueError</span>
+<span class="sd">		If the string is empty, or n is negative/larger than string length.</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c1"># group characters and separate by 1 space</span>
+
+	<span class="c1"># validate string</span>
+	<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">string_val</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+		<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Value is not a String&#39;</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="n">string_val</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;String is empty&#39;</span><span class="p">)</span>
+
+	<span class="c1"># validate n</span>
+	<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">:</span>
+		<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;n is not an Integer&#39;</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">string_val</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;n is out of range&#39;</span><span class="p">)</span>
+
+	<span class="n">grouped_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">lttr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">string_val</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">%</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">grouped_str</span> <span class="o">=</span> <span class="n">grouped_str</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
+
+		<span class="n">grouped_str</span> <span class="o">=</span> <span class="n">grouped_str</span> <span class="o">+</span> <span class="n">lttr</span> 
+
+	<span class="k">return</span> <span class="n">grouped_str</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andre A. Aquino.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
